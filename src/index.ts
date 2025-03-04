@@ -21,59 +21,7 @@ export default {
     if (url.pathname === "/") {
       // Simple home page with login and logout links
       return new Response(
-        `<!DOCTYPE html>
-        <html lang="en">
-        <head>
-          <meta charset="UTF-8">
-          <meta name="viewport" content="width=device-width, initial-scale=1.0">
-          <title>OpenAuth Demo</title>
-          <style>
-            body {
-              font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-              max-width: 800px;
-              margin: 0 auto;
-              padding: 2rem;
-              line-height: 1.6;
-            }
-            h1 {
-              color: #0051c3;
-            }
-            .btn {
-              display: inline-block;
-              background: #0051c3;
-              color: white;
-              padding: 0.5rem 1rem;
-              text-decoration: none;
-              border-radius: 4px;
-              margin-right: 1rem;
-            }
-            .btn:hover {
-              background: #003d97;
-            }
-          </style>
-        </head>
-        <body>
-          <h1>OpenAuth Demo</h1>
-          <p>Welcome to the OpenAuth demonstration. Use the links below to test the authentication flow.</p>
-          
-          <div>
-            <a href="/login" class="btn">Log In</a>
-            <a href="#" class="btn" onclick="logout(); return false;">Log Out</a>
-          </div>
-
-          <script>
-            function logout() {
-              // Clear cookies and refresh the page
-              document.cookie.split(';').forEach(cookie => {
-                const [name] = cookie.trim().split('=');
-                document.cookie = name + '=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
-              });
-              window.location.reload();
-              alert('Logged out successfully!');
-            }
-          </script>
-        </body>
-        </html>`,
+        generateHtml("Welcome to the OpenAuth demonstration. Use the links below to test the authentication flow."),
         {
           headers: {
             "Content-Type": "text/html",
@@ -88,61 +36,9 @@ export default {
       url.pathname = "/authorize";
       return Response.redirect(url.toString());
     } else if (url.pathname === "/callback") {
-      // Create a response with the same HTML as the home page
+      // Create a response with the same HTML as the home page but with a success message
       const response = new Response(
-        `<!DOCTYPE html>
-        <html lang="en">
-        <head>
-          <meta charset="UTF-8">
-          <meta name="viewport" content="width=device-width, initial-scale=1.0">
-          <title>OpenAuth Demo</title>
-          <style>
-            body {
-              font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-              max-width: 800px;
-              margin: 0 auto;
-              padding: 2rem;
-              line-height: 1.6;
-            }
-            h1 {
-              color: #0051c3;
-            }
-            .btn {
-              display: inline-block;
-              background: #0051c3;
-              color: white;
-              padding: 0.5rem 1rem;
-              text-decoration: none;
-              border-radius: 4px;
-              margin-right: 1rem;
-            }
-            .btn:hover {
-              background: #003d97;
-            }
-          </style>
-        </head>
-        <body>
-          <h1>OpenAuth Demo</h1>
-          <p>Welcome to the OpenAuth demonstration. You have successfully logged in!</p>
-          
-          <div>
-            <a href="/login" class="btn">Log In</a>
-            <a href="#" class="btn" onclick="logout(); return false;">Log Out</a>
-          </div>
-
-          <script>
-            function logout() {
-              // Clear cookies and refresh the page
-              document.cookie.split(';').forEach(cookie => {
-                const [name] = cookie.trim().split('=');
-                document.cookie = name + '=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
-              });
-              window.location.reload();
-              alert('Logged out successfully!');
-            }
-          </script>
-        </body>
-        </html>`,
+        generateHtml("Welcome to the OpenAuth demonstration. You have successfully logged in!"),
         {
           headers: {
             "Content-Type": "text/html",
@@ -216,4 +112,63 @@ async function getOrCreateUser(env: Env, email: string): Promise<string> {
   }
   console.log(`Found or created user ${result.id} with email ${email}`);
   return result.id;
+}
+
+/**
+ * Generates HTML for the application pages with a customizable message
+ */
+function generateHtml(message: string): string {
+  return `<!DOCTYPE html>
+  <html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OpenAuth Demo</title>
+    <style>
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 2rem;
+        line-height: 1.6;
+      }
+      h1 {
+        color: #0051c3;
+      }
+      .btn {
+        display: inline-block;
+        background: #0051c3;
+        color: white;
+        padding: 0.5rem 1rem;
+        text-decoration: none;
+        border-radius: 4px;
+        margin-right: 1rem;
+      }
+      .btn:hover {
+        background: #003d97;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>OpenAuth Demo</h1>
+    <p>${message}</p>
+    
+    <div>
+      <a href="/login" class="btn">Log In</a>
+      <a href="#" class="btn" onclick="logout(); return false;">Log Out</a>
+    </div>
+
+    <script>
+      function logout() {
+        // Clear cookies and refresh the page
+        document.cookie.split(';').forEach(cookie => {
+          const [name] = cookie.trim().split('=');
+          document.cookie = name + '=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+        });
+        window.location.reload();
+        alert('Logged out successfully!');
+      }
+    </script>
+  </body>
+  </html>`;
 }
