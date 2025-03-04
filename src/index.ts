@@ -4,6 +4,7 @@ import { PasswordProvider } from "@openauthjs/openauth/provider/password";
 import { PasswordUI } from "@openauthjs/openauth/ui/password";
 import { createSubjects } from "@openauthjs/openauth/subject";
 import { object, string } from "valibot";
+import {GithubProvider} from "@openauthjs/openauth/provider/github";
 
 // This value should be shared between the OpenAuth server Worker and other
 // client Workers that you connect to it, so the types and schema validation are
@@ -57,6 +58,11 @@ export default {
             },
           }),
         ),
+        github: GithubProvider({
+          clientID: 'Iv23liuDg8ttrtbqqK4a',
+          clientSecret: env.GITHUB_CLIENT_SECRET,
+          scopes: ["email", "profile"],
+        })
       },
       theme: {
         title: "myAuth",
@@ -69,9 +75,20 @@ export default {
         },
       },
       success: async (ctx, value) => {
+        console.log(value)
+        if (value.provider === 'password') {
+
         return ctx.subject("user", {
           id: await getOrCreateUser(env, value.email),
         });
+        } else if (value.provider === 'github') {
+          console.log(value.tokenset)
+          return ctx.subject("user", {
+            id: "fooooooo"
+          })
+        }
+
+        throw new Error("wat")
       },
     }).fetch(request, env, ctx);
   },
