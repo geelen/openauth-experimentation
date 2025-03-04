@@ -16,14 +16,72 @@ const subjects = createSubjects({
 
 export default {
   fetch(request: Request, env: Env, ctx: ExecutionContext) {
-    // This top section is just for demo purposes. In a real setup another
-    // application would redirect the user to this Worker to be authenticated,
-    // and after signing in or registering the user would be redirected back to
-    // the application they came from. In our demo setup there is no other
-    // application, so this Worker needs to do the initial redirect and handle
-    // the callback redirect on completion.
     const url = new URL(request.url);
+    
     if (url.pathname === "/") {
+      // Simple home page with login and logout links
+      return new Response(
+        `<!DOCTYPE html>
+        <html lang="en">
+        <head>
+          <meta charset="UTF-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <title>OpenAuth Demo</title>
+          <style>
+            body {
+              font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+              max-width: 800px;
+              margin: 0 auto;
+              padding: 2rem;
+              line-height: 1.6;
+            }
+            h1 {
+              color: #0051c3;
+            }
+            .btn {
+              display: inline-block;
+              background: #0051c3;
+              color: white;
+              padding: 0.5rem 1rem;
+              text-decoration: none;
+              border-radius: 4px;
+              margin-right: 1rem;
+            }
+            .btn:hover {
+              background: #003d97;
+            }
+          </style>
+        </head>
+        <body>
+          <h1>OpenAuth Demo</h1>
+          <p>Welcome to the OpenAuth demonstration. Use the links below to test the authentication flow.</p>
+          
+          <div>
+            <a href="/login" class="btn">Log In</a>
+            <a href="#" class="btn" onclick="logout(); return false;">Log Out</a>
+          </div>
+
+          <script>
+            function logout() {
+              // Clear cookies and refresh the page
+              document.cookie.split(';').forEach(cookie => {
+                const [name] = cookie.trim().split('=');
+                document.cookie = name + '=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+              });
+              window.location.reload();
+              alert('Logged out successfully!');
+            }
+          </script>
+        </body>
+        </html>`,
+        {
+          headers: {
+            "Content-Type": "text/html",
+          },
+        }
+      );
+    } else if (url.pathname === "/login") {
+      // Move the redirect logic that was previously on "/" to "/login"
       url.searchParams.set("redirect_uri", url.origin + "/callback");
       url.searchParams.set("client_id", "your-client-id");
       url.searchParams.set("response_type", "code");
