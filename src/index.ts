@@ -88,10 +88,75 @@ export default {
       url.pathname = "/authorize";
       return Response.redirect(url.toString());
     } else if (url.pathname === "/callback") {
-      return Response.json({
-        message: "OAuth flow complete!",
-        params: Object.fromEntries(url.searchParams.entries()),
-      });
+      // Create a response with the same HTML as the home page
+      const response = new Response(
+        `<!DOCTYPE html>
+        <html lang="en">
+        <head>
+          <meta charset="UTF-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <title>OpenAuth Demo</title>
+          <style>
+            body {
+              font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+              max-width: 800px;
+              margin: 0 auto;
+              padding: 2rem;
+              line-height: 1.6;
+            }
+            h1 {
+              color: #0051c3;
+            }
+            .btn {
+              display: inline-block;
+              background: #0051c3;
+              color: white;
+              padding: 0.5rem 1rem;
+              text-decoration: none;
+              border-radius: 4px;
+              margin-right: 1rem;
+            }
+            .btn:hover {
+              background: #003d97;
+            }
+          </style>
+        </head>
+        <body>
+          <h1>OpenAuth Demo</h1>
+          <p>Welcome to the OpenAuth demonstration. You have successfully logged in!</p>
+          
+          <div>
+            <a href="/login" class="btn">Log In</a>
+            <a href="#" class="btn" onclick="logout(); return false;">Log Out</a>
+          </div>
+
+          <script>
+            function logout() {
+              // Clear cookies and refresh the page
+              document.cookie.split(';').forEach(cookie => {
+                const [name] = cookie.trim().split('=');
+                document.cookie = name + '=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+              });
+              window.location.reload();
+              alert('Logged out successfully!');
+            }
+          </script>
+        </body>
+        </html>`,
+        {
+          headers: {
+            "Content-Type": "text/html",
+          },
+        }
+      );
+      
+      // Set cookies for refresh_token and access_token
+      // Setting secure and httpOnly flags for security
+      // Using placeholder values for now
+      response.headers.append("Set-Cookie", "refresh_token=placeholder_refresh_token; Path=/; HttpOnly; Secure; SameSite=Strict; Max-Age=2592000");
+      response.headers.append("Set-Cookie", "access_token=placeholder_access_token; Path=/; HttpOnly; Secure; SameSite=Strict; Max-Age=3600");
+      
+      return response;
     }
 
     // The real OpenAuth server code starts here:
